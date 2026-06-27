@@ -11,9 +11,11 @@ conversation history or memory, especially Codex and Claude Code history, to inf
 usage habits, collaboration preferences, workflow patterns, privacy boundaries, or
 optional assistant behavior patterns.
 
-Before running the workflow, read
-[docs/features/implemention/implementation-design.md](docs/features/implemention/implementation-design.md)
-for the current source-location caveats, script schemas, and methodology notes.
+Before running the workflow, read these references:
+- [references/source-locations.md](references/source-locations.md) — corpus discovery, include/exclude rules
+- [references/script-interfaces.md](references/script-interfaces.md) — script CLI interfaces and output schemas
+- [references/report-schemas.md](references/report-schemas.md) — report output structure and evidence tables
+- [references/model-field-map.md](references/model-field-map.md) — model field extraction rules (read before enabling agent behavior analysis)
 
 ## Guardrails
 
