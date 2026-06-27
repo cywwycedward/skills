@@ -461,7 +461,7 @@ def _build_inventory_row(
     if is_jsonl:
         metrics = _process_jsonl(path)
         line_count = metrics["total_lines"]
-        readable = True
+        readable = not any("read_error" in w for w in metrics["warnings"])
         jsonl_total_lines = metrics["total_lines"]
         jsonl_valid_lines = metrics["valid_lines"]
         top_level_key_counts = metrics["key_counter"]
@@ -470,7 +470,7 @@ def _build_inventory_row(
     elif is_md:
         metrics = _process_markdown(path)
         line_count = metrics["line_count"]
-        readable = True
+        readable = not any("read_error" in w for w in metrics["warnings"])
         jsonl_total_lines = 0
         jsonl_valid_lines = 0
         text_line_count = metrics["text_line_count"]

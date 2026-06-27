@@ -404,16 +404,11 @@ def _compute_cooccurrence(
                 n = len(tokens)
                 for i in range(n):
                     window = tokens[i : i + window_size]
-                    # Count each unordered pair once per window position
-                    seen: set[str] = set()
-                    for a in window:
-                        seen.add(a)
-                        for b in window:
-                            if a < b and b not in seen:
-                                pair_counter[(a, b)] += 1
-                            elif b < a and a not in seen:
-                                # handled when a is the outer loop and b is the inner
-                                pass
+                    for j in range(len(window)):
+                        for k in range(j + 1, len(window)):
+                            a, b = window[j], window[k]
+                            key = (a, b) if a < b else (b, a)
+                            pair_counter[key] += 1
 
             for (term_a, term_b), count in sorted(pair_counter.items()):
                 records.append(

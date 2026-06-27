@@ -198,3 +198,27 @@ def test_text_profile_can_exclude_code_blocks_and_tool_output(tmp_path: Path) ->
     summary = json.loads((out_dir / "text_profile_summary.json").read_text(encoding="utf-8"))
     assert summary["excluded_content_counts"]["code_blocks"] == 1
     assert summary["excluded_content_counts"]["tool_output_lines"] == 1
+
+
+def test_text_profile_handles_empty_input_after_filtering(tmp_path: Path) -> None:
+    selected = write_jsonl(
+        tmp_path / "selected_text.jsonl",
+        [{
+            "id": "sample-assistant",
+            "inventory_id": "i1",
+            "source_type": "claude_session",
+            "role": "assistant",
+            "agent_tool": "claude",
+            "actual_model_bucket": "claude-sonnet",
+            "displayed_model_signal": None,
+            "behavior_dimension_hint": None,
+            "group": {"agent": "claude", "project_bucket": "current", "time_bucket": "recent"},
+            "redacted_text": "assistant text that will be filtered out",
+        }],
+    )
+    out_dir = tmp_path / "out"
+    assert main(["--input", str(selected), "--output-dir", str(out_dir)]) == 0
+    assert (out_dir / "text_profile_summary.json").exists()
+    assert (out_dir / "term_frequency.csv").exists()
+    summary = json.loads((out_dir / "text_profile_summary.json").read_text(encoding="utf-8"))
+    assert summary["total_document_count"] == 0
