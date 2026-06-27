@@ -115,12 +115,12 @@ NON_TARGET_BASENAMES = frozenset(
         "token.json",
         "secrets.json",
         "package.json",
-        "Cargo.toml",
-        "Makefile",
-        "Dockerfile",
-        "README.md",
-        "CHANGELOG.md",
-        "LICENSE",
+        "cargo.toml",
+        "makefile",
+        "dockerfile",
+        "readme.md",
+        "changelog.md",
+        "license",
         "pyproject.toml",
         "setup.py",
         "setup.cfg",
@@ -408,7 +408,7 @@ def _derive_project_bucket(path: Path, home: Path | None, source_type: str) -> s
         return str(rel.parent) if len(parts) > 1 else "__root__"
 
     # user-specified roots
-    return str(path.parent)
+    return "__user_root__"
 
 
 # ---------------------------------------------------------------------------
