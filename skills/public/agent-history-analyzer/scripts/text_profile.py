@@ -116,12 +116,14 @@ def _load_and_filter(
     input_path: Path,
     include_assistant: bool,
     max_assistant_chars: int | None,
-) -> tuple[list[dict[str, Any]], dict[str, int]]:
-    """Read the JSONL file and return filtered rows + warning counters.
+) -> tuple[list[dict[str, Any]], dict[str, int], list[dict[str, Any]]]:
+    """Read the JSONL file and return filtered rows + warning counters + skipped rows.
 
-    Returns ``(rows, warnings)`` where *warnings* is a flat dict of counters.
+    Returns ``(rows, warnings, skipped_rows)`` where *warnings* is a flat dict of counters
+    and *skipped_rows* is a list of dicts describing unparseable lines.
     """
     rows: list[dict[str, Any]] = []
+    skipped_rows: list[dict[str, Any]] = []
     warnings: dict[str, int] = {
         "missing_role_count": 0,
         "missing_group_count": 0,
@@ -140,6 +142,13 @@ def _load_and_filter(
             try:
                 rec = json.loads(line)
             except json.JSONDecodeError:
+                skipped_rows.append(
+                    {
+                        "id": None,
+                        "reason": "json_decode_error",
+                        "line_preview": line[:100],
+                    }
+                )
                 continue
 
             role = rec.get("role")
@@ -171,7 +180,7 @@ def _load_and_filter(
 
             rows.append(rec)
 
-    return rows, warnings
+    return rows, warnings, skipped_rows
 
 
 def _build_doc_records(
@@ -466,6 +475,7 @@ def _write_warnings(
     output_dir: Path,
     warnings: dict[str, int],
     tokenization_warnings: list[str],
+    skipped_rows: list[dict[str, Any]],
 ) -> None:
     payload: dict[str, Any] = {
         "missing_role_count": warnings.get("missing_role_count", 0),
@@ -475,7 +485,7 @@ def _write_warnings(
         ),
         "excluded_assistant_count": warnings.get("excluded_assistant_count", 0),
         "tokenization_warnings": tokenization_warnings,
-        "skipped_rows": [],
+        "skipped_rows": skipped_rows,
     }
     path = output_dir / "text_profile_warnings.json"
     path.write_text(
@@ -549,7 +559,7 @@ def main(argv: list[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Load & filter
     # ------------------------------------------------------------------
-    rows, warnings = _load_and_filter(
+    rows, warnings, skipped_rows = _load_and_filter(
         input_path,
         include_assistant=args.include_assistant,
         max_assistant_chars=args.max_assistant_chars,
@@ -642,7 +652,7 @@ def main(argv: list[str] | None = None) -> int:
         "missing_redacted_text_count": warnings["missing_redacted_text_count"],
         "excluded_assistant_count": warnings["excluded_assistant_count"],
         "tokenization_warnings": tokenization_warnings,
-        "skipped_rows_count": 0,
+        "skipped_rows_count": len(skipped_rows),
     }
     _write_summary(
         output_dir,
@@ -652,7 +662,7 @@ def main(argv: list[str] | None = None) -> int:
         excluded_counts=excluded_counts,
         warning_summary=warning_summary,
     )
-    _write_warnings(output_dir, warnings, tokenization_warnings)
+    _write_warnings(output_dir, warnings, tokenization_warnings, skipped_rows)
 
     return 0
 
