@@ -59,3 +59,18 @@ def test_text_profile_uses_only_redacted_selected_text(tmp_path: Path) -> None:
     assert "LEAK_SENTINEL_TRANSCRIPT" not in output_text
     assert "/home/private/repo" not in output_text
     assert "person@example.com" not in output_text
+
+
+def test_text_profile_parse_warnings_do_not_echo_malformed_input(tmp_path: Path) -> None:
+    selected = tmp_path / "selected_text.jsonl"
+    out_dir = tmp_path / "profile"
+    selected.write_text("MALFORMED_PRIVATE_SELECTED_TEXT\n", encoding="utf-8")
+
+    assert profile_main(["--input", str(selected), "--output-dir", str(out_dir)]) == 0
+
+    warnings_text = (out_dir / "text_profile_warnings.json").read_text(
+        encoding="utf-8"
+    )
+    assert "MALFORMED_PRIVATE_SELECTED_TEXT" not in warnings_text
+    warnings = json.loads(warnings_text)
+    assert warnings["skipped_rows"] == [{"reason": "json_decode_error"}]

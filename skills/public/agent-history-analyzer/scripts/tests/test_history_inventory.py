@@ -148,3 +148,32 @@ def test_inventory_rejects_broad_root_without_known_candidates(tmp_path: Path) -
     assert inventory == []
     summary = json.loads((out_dir / "inventory_summary.json").read_text(encoding="utf-8"))
     assert summary["total_files"] == 0
+
+
+def test_inventory_accepts_user_specified_transcript_and_memory_files(tmp_path: Path) -> None:
+    transcript = write(tmp_path / "selected.jsonl", '{"event":"ok"}\n')
+    memory = write(tmp_path / "Memory.md", "Remember to verify outputs.\n")
+    out_dir = tmp_path / "out"
+
+    assert (
+        main(
+            [
+                "--agent",
+                "both",
+                "--root",
+                str(transcript),
+                "--root",
+                str(memory),
+                "--no-defaults",
+                "--output-dir",
+                str(out_dir),
+            ]
+        )
+        == 0
+    )
+
+    inventory = read_jsonl(out_dir / "inventory.jsonl")
+    assert {row["source_type"] for row in inventory} == {
+        "user_specified_transcript",
+        "user_specified_memory",
+    }

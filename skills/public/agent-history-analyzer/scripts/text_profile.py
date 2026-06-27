@@ -144,9 +144,7 @@ def _load_and_filter(
             except json.JSONDecodeError:
                 skipped_rows.append(
                     {
-                        "id": None,
                         "reason": "json_decode_error",
-                        "line_preview": line[:100],
                     }
                 )
                 continue
@@ -319,13 +317,12 @@ def _compute_ngram_frequencies(
         for token_type, doc_token_lists in by_type.items():
             if not doc_token_lists:
                 continue
-            doc_strings = [" ".join(tokens) for tokens in doc_token_lists]
+            doc_ngrams = [_make_ngrams(tokens, max_n=3) for tokens in doc_token_lists]
             vectorizer = CountVectorizer(
-                analyzer=lambda d: d.split(),
+                analyzer=lambda d: d,
                 lowercase=False,
-                ngram_range=(1, 3),
             )
-            dtm = vectorizer.fit_transform(doc_strings)
+            dtm = vectorizer.fit_transform(doc_ngrams)
             feature_names = vectorizer.get_feature_names_out()
             counts = dtm.sum(axis=0).A1
             doc_counts = (dtm > 0).sum(axis=0).A1
@@ -350,6 +347,17 @@ def _compute_ngram_frequencies(
                 )
 
     return pd.DataFrame(records)
+
+
+def _make_ngrams(tokens: list[str], max_n: int) -> list[str]:
+    """Return contiguous token n-grams up to *max_n* as space-joined strings."""
+    ngrams: list[str] = []
+    for n in range(1, max_n + 1):
+        if len(tokens) < n:
+            continue
+        for i in range(len(tokens) - n + 1):
+            ngrams.append(" ".join(tokens[i : i + n]))
+    return ngrams
 
 
 def _compute_tfidf(

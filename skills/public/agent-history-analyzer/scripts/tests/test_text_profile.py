@@ -200,6 +200,35 @@ def test_text_profile_can_exclude_code_blocks_and_tool_output(tmp_path: Path) ->
     assert summary["excluded_content_counts"]["tool_output_lines"] == 1
 
 
+def test_text_profile_emits_one_two_and_three_gram_counts(tmp_path: Path) -> None:
+    selected = write_jsonl(
+        tmp_path / "selected_text.jsonl",
+        [
+            {
+                "id": "sample-ngram",
+                "inventory_id": "i1",
+                "source_type": "user_specified_transcript",
+                "role": "user",
+                "agent_tool": "codex",
+                "actual_model_bucket": "unknown_actual_model",
+                "displayed_model_signal": None,
+                "behavior_dimension_hint": None,
+                "group": {"agent": "codex"},
+                "redacted_text": "alpha beta gamma",
+            }
+        ],
+    )
+    out_dir = tmp_path / "out"
+
+    assert main(["--input", str(selected), "--output-dir", str(out_dir)]) == 0
+
+    rows = read_csv(out_dir / "ngram_frequency.csv")
+    assert {row["n"] for row in rows} == {"1", "2", "3"}
+    assert {"alpha beta", "beta gamma", "alpha beta gamma"} <= {
+        row["ngram"] for row in rows
+    }
+
+
 def test_text_profile_handles_empty_input_after_filtering(tmp_path: Path) -> None:
     selected = write_jsonl(
         tmp_path / "selected_text.jsonl",

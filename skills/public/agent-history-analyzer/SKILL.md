@@ -15,7 +15,9 @@ Before running the workflow, read these references:
 - [references/source-locations.md](references/source-locations.md) — corpus discovery, include/exclude rules
 - [references/script-interfaces.md](references/script-interfaces.md) — script CLI interfaces and output schemas
 - [references/report-schemas.md](references/report-schemas.md) — report output structure and evidence tables
-- [references/model-field-map.md](references/model-field-map.md) — model field extraction rules (read before enabling agent behavior analysis)
+- [references/user-habits-design.md](references/user-habits-design.md) — user habit sampling, evidence strength, scope, and drift rules
+- [references/agent-behavior-design.md](references/agent-behavior-design.md) — optional agent behavior analysis rules
+- [references/model-signal-map.md](references/model-signal-map.md) — model signal extraction rules (read before enabling agent behavior analysis)
 
 ## Guardrails
 

@@ -348,6 +348,15 @@ def _discover_user_root_candidates(root: Path) -> list[tuple[Path, str]]:
     - Everything else is silently skipped.
     """
     candidates: list[tuple[Path, str]] = []
+    if root.is_file():
+        if _is_excluded(root):
+            return candidates
+        if root.suffix == ".jsonl":
+            candidates.append((root, "user_specified_transcript"))
+        elif root.suffix == ".md" and _is_memory_candidate(root):
+            candidates.append((root, "user_specified_memory"))
+        return candidates
+
     if not root.is_dir():
         return candidates
 
