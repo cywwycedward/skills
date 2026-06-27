@@ -12,8 +12,8 @@ usage habits, collaboration preferences, workflow patterns, privacy boundaries, 
 optional assistant behavior patterns.
 
 Before running the workflow, read
-[references/implementation-design.md](references/implementation-design.md) for the
-current source-location caveats, script schemas, and methodology notes.
+[docs/features/implemention/implementation-design.md](docs/features/implemention/implementation-design.md)
+for the current source-location caveats, script schemas, and methodology notes.
 
 ## Guardrails
 
@@ -58,6 +58,8 @@ Use `scripts/history_inventory.py` when available. If the script is not implemen
 or cannot run, perform the smallest equivalent manual inventory and record the gap in
 `warnings.md`.
 
+From the skill directory, run inventory with `cd scripts && uv run python history_inventory.py --agent both --output-dir ../.output/YYYY-MM-DD-summary`.
+
 Inventory only candidate transcript and memory files. Exclude `AGENTS.md`,
 `CLAUDE.md`, `.codex/config.toml`, Claude settings, MCP configuration, source code,
 and project documentation.
@@ -82,6 +84,8 @@ and why.
 Use `scripts/text_profile.py` when useful and available. Provide an explicit
 `selected_text.jsonl` extracted by the agent from selected samples. Do not let the
 script discover, traverse, or parse the full history corpus.
+
+From the skill directory, run text profiling with `cd scripts && uv run python text_profile.py --input ../.output/YYYY-MM-DD-summary/selected_text.jsonl --output-dir ../.output/YYYY-MM-DD-summary/user-habits`.
 
 Use text statistics as cues. Counts suggest where to look; close reading decides what
 it means.
