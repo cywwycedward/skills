@@ -108,7 +108,13 @@ When editing ignore rules:
 
 #### Branch Management By Intent
 
-**Branch names start with the work's ownership scope, then follow Git Flow intent.**
+**Use `main` and `develop` as the base branches; development branches start with ownership scope, then follow Git Flow intent.**
+
+Base branch rules:
+- Keep `main` and `develop` unprefixed; do not use `repo/main`, `<skill-name>/develop`, or similar names.
+- Start all development work by creating a new branch from `develop`.
+- Merge completed development work back into `develop`.
+- Do not merge `develop` into `main` unless the user explicitly asks for or approves that merge.
 
 Before creating a development branch:
 - Classify repository maintenance work under `repo/***`.
