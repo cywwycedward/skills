@@ -1,0 +1,22 @@
+# Normalize text files to LF in both the repository and working trees.
+* text=auto eol=lf
+
+# Current repository text formats.
+*.md text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Common binary artifacts should never get line-ending conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.docx binary
+*.pptx binary
+*.xlsx binary

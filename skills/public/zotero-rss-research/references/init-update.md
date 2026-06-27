@@ -13,6 +13,19 @@
    markitdown --version
    ```
 
+   如果任一检查不通过，不要继续初始化或更新。先向用户说明：
+
+   - 哪个命令失败或缺失。
+   - 失败输出的关键错误摘要。
+   - 这会阻塞哪个后续步骤，例如无法验证 Zotero 配置、读取 feeds 或转换 Markdown。
+
+   然后向用户确认是否现在安装缺失工具或继续检查配置。只有在用户明确同意后，才执行安装、登录、配置修复或更深入的本地检查；如果用户不同意或暂未确认，停止并等待用户处理后再继续。
+
+   工具安装说明：
+
+   - 未安装`zotero-cli`:使用`uv tool add zotero`
+   - 未安装`markitdown`:使用`uv tool add 'markitdown[pdf]'`
+
 2. 和用户确认配置：
    - collection 名称
       - 使用 `zotero-cli collections list` 检查是否存在该 collection。
