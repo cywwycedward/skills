@@ -1,0 +1,5 @@
+state/runs/*
+state/config.json
+!state/runs/.gitkeep
+scripts/__pycache__/
+*.pyc
