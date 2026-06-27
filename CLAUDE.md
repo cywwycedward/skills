@@ -105,3 +105,21 @@ When editing ignore rules:
 - Don't add skill-specific runtime state, build outputs, language caches, or generated files to the root `.gitignore`.
 - If a skill needs files ignored, add or update that skill's local `.gitignore`.
 - Use root-anchored patterns when the rule is meant only for the repository root.
+
+#### Branch Management By Intent
+
+**Branch names start with the work's ownership scope, then follow Git Flow intent.**
+
+Before creating a development branch:
+- Classify repository maintenance work under `repo/***`.
+- Classify skill development work under `<skill-name>/***`, where `<skill-name>` is the skill package directory name.
+- Use Git Flow-style intent under that ownership prefix.
+- Use `feature` for new behavior, content, or capabilities.
+- Use `hotfix` for urgent fixes to broken behavior, bad guidance, or incorrect shipped content.
+- Do not create `release/***` branches; this repository does not use release branches.
+
+Examples:
+- Repository maintenance feature: `repo/feature/update-agent-guidance`
+- Repository maintenance hotfix: `repo/hotfix/fix-root-gitignore`
+- Skill feature: `<skill-name>/feature/add-reference-workflow`
+- Skill hotfix: `<skill-name>/hotfix/fix-invalid-command`
