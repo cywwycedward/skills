@@ -46,6 +46,67 @@ redacted context categories, not report subjects.
 ## Limits
 ```
 
+Headings may be localized to the report language, but the content roles are
+required. `Preference Summary` is the one-page summary: 3-5 high-value conclusions,
+the core conditional pattern, and links to the strongest claim IDs. Detailed evidence
+belongs in the sections below, not only in CSV files.
+
+## Readable Report Pattern
+
+Write the report as a user collaboration profile, not only a compliance summary.
+The body must turn evidence-table data into usable prose:
+
+- State the core conditional pattern, such as when direct execution is preferred and
+  when planning or clarification is required.
+- Explain useful counts in the relevant section with claim IDs and uncertainty.
+- Include privacy-safe typical patterns as paraphrased examples, never raw quotes.
+- Put negative preferences next to the positive rule they constrain.
+- End with a future agent behavior protocol: 5-8 `when ... then ...` rules, each
+  tied to claim IDs and evidence strength.
+
+### Finding Card Format
+
+Each major finding, and every `strong` finding, uses this card shape:
+
+```md
+### {claim_id} {short finding title}
+
+Conclusion:
+Data support:
+Scope:
+What this means:
+Future agent behavior:
+Not applicable when:
+Uncertainty and privacy note:
+Evidence row:
+```
+
+`Data support` should summarize counts, evidence types, memory refs, agent coverage,
+project coverage, and time coverage when available. `What this means` translates the
+finding into concrete behavior. `Not applicable when` prevents overbroad rules.
+`Evidence row` must map to `user-habits/evidence-table.csv`.
+
+### Collaboration Decision Matrix
+
+`Collaboration Preferences` must include a decision matrix with these columns:
+`task signal`, `agent should`, `ask first when`, `verify by`, and `evidence strength`.
+It should cover at least clear implementation tasks, large changes, git operations,
+privacy/history/log analysis, UI work, external facts/APIs, user correction events,
+and completion claims when those scenarios appear in evidence.
+
+### Task Type Patterns
+
+Include a compact task type profile when evidence supports it. Use task classes such
+as code implementation, architecture or migration, UI/frontend, research or API
+work, report analysis, and agent tooling. Each row states the observed preference
+and links to claim IDs.
+
+### Privacy-Safe Examples
+
+Examples must be generalized paraphrases with source categories and supporting refs.
+Do not include raw transcript quotes, complete local paths, customer or project
+names, secrets, or text that could reconstruct private content.
+
 ## Evidence Strength
 
 - `strong`: the preference appears across multiple sessions or projects, and
@@ -59,10 +120,26 @@ redacted context categories, not report subjects.
 Every preference finding must carry an evidence strength. Do not present weak signals
 as stable habits.
 
+Every `strong` finding must explain why it is strong: cross-session or cross-project
+coverage, time coverage, memory support when available, and any boundary or counter
+example.
+
 ## Sampling Priorities
 
-In addition to covering time, project, agent tool, and session size, oversample
-high-value preference events:
+Mandatory sampling slots, when available in the inventory:
+
+- All memory files in scope.
+- History file if available.
+- Each in-scope agent tool's recent sessions.
+- Each in-scope agent tool's oldest sessions.
+- Each in-scope agent tool's largest sessions.
+- Requested project buckets with candidates.
+
+If a mandatory slot is not sampled, record the waiver and reason in
+`sampling_plan.json`.
+
+In addition to covering time, project, agent tool, and session size, conditionally
+oversample high-value preference events:
 
 - Sessions where the user corrects the agent.
 - Sessions where the user explicitly states preferences or boundaries.
@@ -113,6 +190,10 @@ but must not modify memory files automatically.
 Analyze explicit "do not" preferences as first-class findings. Represent them in
 `user-habits/data-categories.json` and discuss them under the relevant report
 sections.
+
+Each negative preference category should include `forbidden_action`, `trigger`,
+`allowed_alternative`, `scope`, and `override_relation`. The report should explain
+what future agents should do instead of the forbidden action.
 
 ## Preference Drift
 

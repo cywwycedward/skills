@@ -5,6 +5,9 @@ from history_inventory import main as inventory_main
 from text_profile import main as profile_main
 
 
+SKILL_ROOT = Path(__file__).resolve().parents[2]
+
+
 def write(path: Path, text: str) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
@@ -28,6 +31,34 @@ def test_default_persistent_inventory_summary_is_privacy_safe(tmp_path: Path) ->
     assert "LEAK_SENTINEL_TRANSCRIPT" not in warnings_text
     assert str(secret_path) not in summary_text
     assert "content_sha256" not in summary_text
+
+
+def test_report_retention_contract_names_private_working_files() -> None:
+    skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    schema_text = (SKILL_ROOT / "references" / "report-schemas.md").read_text(
+        encoding="utf-8"
+    )
+    combined = skill_text + "\n" + schema_text
+
+    for token in [
+        "inventory.jsonl",
+        "selected_text.jsonl",
+        "agent-behavior/behavior_events.jsonl",
+        "Privacy Warnings",
+        "full local paths",
+        "content_sha256",
+        "redacted_text",
+        "re-identification",
+        "transcript reconstruction",
+        "inventory_summary.json",
+        "evidence-table.csv",
+        "data-categories.json",
+        "text_profile_summary.json",
+    ]:
+        assert token in combined
+
+    assert "Default working files to remove before final verification" in schema_text
+    assert "If the user explicitly requests retaining" in schema_text
 
 
 def test_text_profile_uses_only_redacted_selected_text(tmp_path: Path) -> None:

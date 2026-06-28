@@ -45,9 +45,13 @@ Confirm the analysis scope:
   locations from the design reference.
 - Ask whether to include optional agent behavior analysis. Keep it off unless the
   user explicitly says yes.
+- Initial report language: use the user's explicit choice. If the user has not
+  specified one, ask before writing reports. Do not infer it only from corpus
+  language.
 
-Completion criterion: the target corpus and optional branches are clear enough to
-avoid broad filesystem searches.
+Completion criterion: the target corpus, optional branches, and initial report
+language are clear enough to avoid broad filesystem searches or ambiguous output
+language.
 
 ### 2. Inventory
 
@@ -73,15 +77,17 @@ and size range are known before reading transcript bodies.
 
 ### 3. Plan Sampling
 
-Create a sampling plan from the inventory. The agent, not a script, chooses samples.
-Prefer coverage across agent, project bucket, time period, session size, memory files,
-and unusual warning patterns.
+Create `sampling_plan.json` from the inventory. The agent, not a script, chooses
+samples. Prefer coverage across agent, project bucket, time period, session size,
+memory files, history files, and unusual warning patterns.
 
 Ask the user before deep reading when the plan is full-corpus, high-cost, unusually
 sensitive, or requires persisting unredacted text.
 
-Completion criterion: the final report can disclose what was sampled, what was not,
-and why.
+Completion criterion: `sampling_plan.json` records every selected sample with a
+`sample_reason`, required coverage slots are sampled or explicitly waived,
+conditional high-value slots are considered, and the final report can explain what
+was sampled, what was not, and why full-corpus reading was not performed.
 
 ### 4. Profile Text
 
@@ -126,6 +132,7 @@ Default files:
 ```text
 report.md
 inventory_summary.json
+sampling_plan.json
 warnings.md
 user-habits/
 agent-behavior/  # only when enabled
@@ -133,6 +140,32 @@ agent-behavior/  # only when enabled
 
 Do not persist raw transcript excerpts or unredacted intermediate text unless the
 user explicitly requests that higher-risk output.
+
+Finalize Privacy Cleanup: apply the artifact retention rules in
+`references/report-schemas.md` before verification. By default, remove working files
+such as `inventory.jsonl`, `selected_text.jsonl`, and
+`agent-behavior/behavior_events.jsonl`. If the user explicitly requests retaining
+intermediate files, record the retained filenames, privacy risk, and user choice in
+`warnings.md`.
+
+Completion criterion: the saved package matches the report schema, default working
+files are removed unless explicitly retained, retained intermediate files are named
+in `Privacy Warnings`, and no raw transcript excerpts or unredacted intermediate text
+remain in the default report package.
+
+### 7. Verify Report Package
+
+Before the final response, verify the report package using the report package
+verification rules in `references/report-schemas.md`.
+
+Check that required reports exist, JSON files parse, CSV evidence tables have
+headers and at least one data row, warnings.md contains all required sections,
+raw working files were removed unless explicitly retained, the privacy scan passes,
+agent behavior model signal limits are stated when that branch is enabled, and the
+final response links the report files with verification evidence.
+
+Completion criterion: the report package passes every required verification gate, or
+`warnings.md` records each skipped or failed gate with its reason and residual risk.
 
 ## Examples
 

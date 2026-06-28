@@ -7,7 +7,8 @@ If the user does not answer or does not request this branch, keep it off.
 
 ## Primary Grouping
 
-- Group agent behavior findings first by actual/effective model.
+- Use actual/effective model buckets as evidence grouping metadata, but write the
+  report around observable behavior dimensions and task contexts.
 - Do not use displayed model as the primary grouping key.
 - Displayed model may be reported only as an explanatory signal when the confirmed
   model signal map documents it.
@@ -24,7 +25,7 @@ field semantics.
 Default analysis frame: trace-based behavior coding.
 
 Analyze observable agent behavior in conversation trajectories. Do not rate model
-intelligence or intrinsic capability. For each actual/effective model bucket, code:
+intelligence or intrinsic capability. Code these behavior dimensions:
 
 1. Task framing and clarification.
 2. Planning and decomposition.
@@ -40,7 +41,8 @@ intelligence or intrinsic capability. For each actual/effective model bucket, co
 
 For each dimension, report observable patterns, supporting trace references,
 frequency or rate when available, evidence strength, failure modes, and limits on what
-was not observable.
+was not observable. Within each actual/effective model bucket, include only dimensions
+with evidence or mark important missing dimensions as `not_observed`.
 
 Do not claim that a model is generally "smarter" or "better" from these observations.
 Report only behavior patterns observed in the sampled traces.
@@ -63,8 +65,57 @@ Report only behavior patterns observed in the sampled traces.
 ## Boundary And Privacy Behavior
 ## Failure Modes And Recovery
 ## Evidence Strength
+## Future Use Suggestions
+## Next Analysis Plan
 ## Limits
 ```
+
+`## Method` must include `Sample Bias Notes`: task mix, tool-heavy skew, uneven
+sample counts, project concentration, failure/recovery oversampling, and how those
+limits affect comparison.
+
+`## Behavior By Actual/Effective Model` uses this bucket template:
+
+```md
+### {actual_model_bucket}
+
+Sample count:
+Model signal source:
+Task mix:
+Bias and limits:
+Dimension findings:
+```
+
+Bucket sections summarize behavior, not model capability. Each dimension finding
+should include pattern, data support, failure mode when observed, and limit.
+
+`## Tool Trajectory` must explain observable chains, not just tool counts:
+request -> tool path -> output handling -> follow-up action or skipped follow-up.
+High tool counts mean the analysis is tool-trace heavy and completion should be
+judged from tool results, not assistant claims alone.
+
+`## Verification And Grounding` must separate `observed_verification` from
+`completion_claim_only`. A completion claim counts as observed verification only
+when supported by test/build/check/screenshot/browser/source results or another
+task-appropriate tool result.
+
+`## Failure Modes And Recovery` uses these fields when evidence exists: `trigger`,
+`diagnosis`, `corrective_action`, and `outcome`. For interruption, resume, rollback,
+or context compaction, state whether the agent re-established current goal,
+completed work, remaining work, and verification status.
+
+`## Boundary And Privacy Behavior` must use segment IDs, path hashes, and aggregate
+categories. Do not include raw transcript text, complete local paths, secret values,
+or event text that reconstructs private content.
+
+`## Future Use Suggestions` gives evidence-linked operating advice for future agent
+use. Each suggestion cites finding IDs and avoids general model ranking. Useful
+classes include coding tasks, long-running tasks, subagent tasks, UI tasks, research
+tasks, and any multi-model comparison request.
+
+`## Next Analysis Plan` lists 2-5 concrete next analysis actions that answer this
+report's limits, such as completion-claim audit, verification-result audit, matched
+task-type sampling, interrupted/resumed session audit, or memory influence audit.
 
 ## Evidence Strength
 
@@ -109,6 +160,10 @@ observable trajectories:
 - Explicit user boundaries, privacy requirements, or high-risk operations.
 
 Short ordinary question-answer sessions are lower value for agent behavior analysis.
+
+Use sampling reasons from `report-schemas.md` for agent behavior samples, especially
+`agent_tool_coverage`, `model_bucket_coverage`, `comparable_task_coverage`,
+`verification_pattern`, `failed_retried_interrupted`, and `privacy_security_pattern`.
 
 ## Model Signal Reporting
 
