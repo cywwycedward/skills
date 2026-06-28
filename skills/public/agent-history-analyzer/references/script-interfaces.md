@@ -21,7 +21,7 @@ Purpose: create a low-cost corpus map without reading project source or emitting
 
 ```bash
 cd scripts
-uv run python history_inventory.py --agent {codex,claude,both} --output-dir ../.output/YYYY-MM-DD-summary
+uv run python history_inventory.py --agent {codex,claude,both} --output-dir ../.output/YYYY-MM-DD-summary/inventory
 ```
 
 ### Arguments
@@ -37,14 +37,14 @@ uv run python history_inventory.py --agent {codex,claude,both} --output-dir ../.
 
 ### Output Files
 
-**inventory.jsonl** (working file, may include path and content_sha256):
+**inventory/inventory.jsonl** (retained inventory detail, may include path and content_sha256):
 
 | Key | Description |
 |-----|-------------|
 | `id` | Unique identifier |
 | `agent` | `codex` or `claude` |
 | `source_type` | One of the eight source types |
-| `path` | Full local path (working file only) |
+| `path` | Full local path (`inventory.jsonl` only) |
 | `path_hash` | `sha256(str(path.resolve()).encode())[:16]` |
 | `project_bucket` | De-identified project label |
 | `size_bytes` | File size |
@@ -56,10 +56,10 @@ uv run python history_inventory.py --agent {codex,claude,both} --output-dir ../.
 | `jsonl_valid_lines` | For JSONL: valid JSON lines |
 | `top_level_key_counts` | For JSONL: top-level key frequencies |
 | `text_line_count` | For Markdown: text lines |
-| `content_sha256` | Content hash (working file only) |
+| `content_sha256` | Content hash (`inventory.jsonl` only) |
 | `warnings` | List of warning strings |
 
-**inventory_summary.json** (persistent, omits path and content_sha256):
+**inventory/inventory_summary.json** (persistent summary, omits path and content_sha256):
 
 ```json
 {
@@ -76,7 +76,7 @@ uv run python history_inventory.py --agent {codex,claude,both} --output-dir ../.
 
 Each `sources` entry includes `id`, `path_hash`, `agent`, `source_type`, `project_bucket`, `size_bytes`, `mtime`, `extension`, `line_count`, `jsonl_total_lines`, `jsonl_valid_lines`, `text_line_count`, `warnings` — but NOT `path` or `content_sha256`.
 
-**warnings.json:**
+**inventory/warnings.json:**
 
 ```json
 {
@@ -96,8 +96,15 @@ Reads only agent-prepared `selected_text.jsonl` — never traverses history root
 
 ```bash
 cd scripts
-uv run python text_profile.py --input ../.output/YYYY-MM-DD-summary/selected_text.jsonl --output-dir ../.output/YYYY-MM-DD-summary/user-habits
+uv run python text_profile.py --input ../.output/YYYY-MM-DD-summary/user-habits/analysis/selected_text.jsonl --output-dir ../.output/YYYY-MM-DD-summary/user-habits/analysis
 ```
+
+The script writes all output files to `--output-dir`. The recommended `--output-dir`
+is the branch `analysis/` directory. During `Finalize Artifact Layout`, keep count
+CSVs in `analysis/`, move `text_profile_summary.json` to the branch `evidence/`
+directory, and move `text_profile_warnings.json` to the branch `runtime/` directory.
+Use the same pattern under `agent-behavior/` when text profiling is enabled for
+assistant or behavior traces.
 
 ### Arguments
 
@@ -133,15 +140,15 @@ Missing `role` → `"unknown"`, missing `group` → `{}`.
 
 ### Output Files
 
-**term_frequency.csv:** `group_id`, `role`, `token`, `token_type`, `count`, `per_1000_tokens`, `doc_count`
+**analysis/term_frequency.csv:** `group_id`, `role`, `token`, `token_type`, `count`, `per_1000_tokens`, `doc_count`
 
-**ngram_frequency.csv:** `group_id`, `role`, `n`, `ngram`, `token_type`, `count`, `per_1000_tokens`, `doc_count`
+**analysis/ngram_frequency.csv:** `group_id`, `role`, `n`, `ngram`, `token_type`, `count`, `per_1000_tokens`, `doc_count`
 
-**tfidf_terms.csv:** `group_id`, `role`, `token`, `token_type`, `tfidf`, `doc_count`
+**analysis/tfidf_terms.csv:** `group_id`, `role`, `token`, `token_type`, `tfidf`, `doc_count`
 
-**cooccurrence.csv:** `group_id`, `role`, `term_a`, `term_b`, `window_size`, `count`
+**analysis/cooccurrence.csv:** `group_id`, `role`, `term_a`, `term_b`, `window_size`, `count`
 
-**text_profile_summary.json:**
+**text_profile_summary.json** (script output; final path `evidence/text_profile_summary.json`):
 ```json
 {
   "total_document_count": 0,
@@ -154,7 +161,7 @@ Missing `role` → `"unknown"`, missing `group` → `{}`.
 }
 ```
 
-**text_profile_warnings.json:**
+**text_profile_warnings.json** (script output; final path `runtime/text_profile_warnings.json`):
 ```json
 {
   "missing_role_count": 0,

@@ -7,8 +7,8 @@ If the user does not answer or does not request this branch, keep it off.
 
 ## Primary Grouping
 
-- Use actual/effective model buckets as evidence grouping metadata, but write the
-  report around observable behavior dimensions and task contexts.
+- Bucket evidence by confirmed actual/effective model signals, then write the report
+  narrative around observable behavior dimensions and task contexts.
 - Do not use displayed model as the primary grouping key.
 - Displayed model may be reported only as an explanatory signal when the confirmed
   model signal map documents it.

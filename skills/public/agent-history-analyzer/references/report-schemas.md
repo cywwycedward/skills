@@ -16,9 +16,9 @@ Save under `skills/public/agent-history-analyzer/.output/YYYY-MM-DD-summary/`.
 The initial reports use the language chosen during Initialize and keep the default
 filenames `report.md` and `warnings.md`.
 
-When the user later requests another language, create derived files in the same
-directory named `report-{lang}.md` and `warnings-{lang}.md`, where `{lang}` is an
-ASCII filename-safe language tag such as `en` or `zh-CN`.
+When the user later requests another language, create derived files beside the source
+report: `report-{lang}.md` for reports and `warnings-{lang}.md` for root warnings,
+where `{lang}` is an ASCII filename-safe language tag such as `en` or `zh-CN`.
 
 Derived language outputs translate existing report content only. Do not re-inventory,
 resample, deep read, rerun profiling, reinterpret evidence, add conclusions, remove
@@ -27,61 +27,53 @@ JSON and CSV field names, claim IDs, finding IDs, evidence IDs, supporting ref I
 filenames, directory names, model names, tool names, agent names, and command names.
 If explanation is needed, label it as explanation, not translation.
 
-## Artifact Retention
-
-Default persistent files:
-
-```text
-report.md
-inventory_summary.json
-sampling_plan.json
-warnings.md
-user-habits/report.md
-user-habits/evidence-table.csv
-user-habits/data-categories.json
-user-habits/text_profile_summary.json
-agent-behavior/report.md                  # only when enabled
-agent-behavior/evidence-table.csv         # only when enabled
-agent-behavior/data-categories.json       # only when enabled
-agent-behavior/text_profile_summary.json  # only when enabled
-```
-
-Default working files to remove before final verification:
-
-```text
-inventory.jsonl
-selected_text.jsonl
-agent-behavior/behavior_events.jsonl
-```
-
-`inventory.jsonl` can contain full local paths and `content_sha256`.
-`selected_text.jsonl` can contain selected `redacted_text`. Event-level behavior
-files can reveal detailed trajectories. If the user explicitly requests retaining
-any intermediate file, keep only the named files and record the privacy risk in
-`warnings.md` under `Privacy Warnings`: full local paths, content fingerprints,
-incomplete redaction, re-identification, project exposure, and transcript
-reconstruction risk. This is the transcript reconstruction risk to disclose when
-intermediate files are retained.
-
 ## Directory Structure
 
-```text
-.output/YYYY-MM-DD-summary/
-|-- report.md
-|-- inventory_summary.json
-|-- sampling_plan.json
-|-- warnings.md
-|-- user-habits/
-|   |-- report.md
-|   |-- evidence-table.csv
-|   |-- data-categories.json
-|   `-- text_profile_summary.json
-`-- agent-behavior/          # only when enabled
-    |-- report.md
-    |-- evidence-table.csv
-    |-- data-categories.json
-    `-- text_profile_summary.json
-```
+Use this artifact layout. Keep intermediate files and place them by derivation role:
+`inventory/` for corpus discovery and sampling, `analysis/` for selected text and
+derived profile or event intermediates, `evidence/` for files cited by reports, and
+`runtime/` for warnings or run-state records.
+
+`inventory/inventory.jsonl` retains detailed inventory fields such as `path` and
+`content_sha256`. Branch `analysis/selected_text.jsonl` files retain selected
+`redacted_text`; `agent-behavior/analysis/behavior_events.jsonl` retains event-level
+behavior records.
+
+Canonical artifact paths:
+
+| Path | Role | Required when |
+|------|------|---------------|
+| `report.md` | root report | always |
+| `report-{lang}.md` | translated root report | requested |
+| `warnings.md` | root warnings report | always |
+| `warnings-{lang}.md` | translated root warnings report | requested |
+| `inventory/inventory_summary.json` | inventory evidence | always after inventory |
+| `inventory/sampling_plan.json` | sampling audit trail | always after sampling |
+| `inventory/inventory.jsonl` | retained inventory detail | always after inventory |
+| `inventory/warnings.json` | inventory runtime status | always after inventory |
+| `user-habits/report.md` | user habit report | always |
+| `user-habits/report-{lang}.md` | translated user habit report | requested |
+| `user-habits/evidence/evidence-table.csv` | user habit evidence | always |
+| `user-habits/evidence/data-categories.json` | user habit data categories | always |
+| `user-habits/evidence/text_profile_summary.json` | user habit profile summary | text profiling run |
+| `user-habits/analysis/selected_text.jsonl` | user habit profile input | text profiling run |
+| `user-habits/analysis/term_frequency.csv` | user habit profile output | text profiling run |
+| `user-habits/analysis/ngram_frequency.csv` | user habit profile output | text profiling run |
+| `user-habits/analysis/tfidf_terms.csv` | user habit profile output | text profiling run |
+| `user-habits/analysis/cooccurrence.csv` | user habit profile output | text profiling run |
+| `user-habits/runtime/text_profile_warnings.json` | user habit profile runtime status | text profiling run |
+| `agent-behavior/report.md` | agent behavior report | agent behavior enabled |
+| `agent-behavior/report-{lang}.md` | translated agent behavior report | requested |
+| `agent-behavior/evidence/evidence-table.csv` | agent behavior evidence | agent behavior enabled |
+| `agent-behavior/evidence/data-categories.json` | agent behavior data categories | agent behavior enabled |
+| `agent-behavior/evidence/text_profile_summary.json` | agent behavior profile summary | agent behavior text profiling run |
+| `agent-behavior/analysis/selected_text.jsonl` | agent behavior profile input | agent behavior text profiling run |
+| `agent-behavior/analysis/behavior_events.jsonl` | agent behavior event coding input | agent behavior enabled |
+| `agent-behavior/analysis/term_frequency.csv` | agent behavior profile output | agent behavior text profiling run |
+| `agent-behavior/analysis/ngram_frequency.csv` | agent behavior profile output | agent behavior text profiling run |
+| `agent-behavior/analysis/tfidf_terms.csv` | agent behavior profile output | agent behavior text profiling run |
+| `agent-behavior/analysis/cooccurrence.csv` | agent behavior profile output | agent behavior text profiling run |
+| `agent-behavior/runtime/text_profile_warnings.json` | agent behavior profile runtime status | agent behavior text profiling run |
 
 ## Root report.md
 
@@ -138,11 +130,11 @@ Required sections:
 
 ## Sampling Plan Schema
 
-`sampling_plan.json` records the audit trail for sample selection:
+`inventory/sampling_plan.json` records the audit trail for sample selection:
 
 ```json
 {
-  "inventory_summary_ref": "inventory_summary.json",
+  "inventory_summary_ref": "inventory/inventory_summary.json",
   "mandatory_coverage": [],
   "conditional_coverage": [],
   "selected_samples": [],
@@ -201,24 +193,24 @@ comparable_task_coverage
 
 Before the final response:
 
-- Required reports exist: root `report.md`, `inventory_summary.json`,
-  `sampling_plan.json`, `warnings.md`, `user-habits/report.md`,
-  `user-habits/evidence-table.csv`, and `user-habits/data-categories.json`;
-  agent behavior files exist when that branch is enabled.
+- Required reports exist: root `report.md`, `warnings.md`,
+  `inventory/inventory_summary.json`, `inventory/sampling_plan.json`,
+  `user-habits/report.md`, `user-habits/evidence/evidence-table.csv`, and
+  `user-habits/evidence/data-categories.json`; agent behavior files exist when
+  that branch is enabled.
 - JSON files parse.
 - CSV evidence tables have headers and at least one data row unless the branch was
   explicitly skipped and recorded in `warnings.md`.
 - `warnings.md` contains every required section.
-- Default working files from Artifact Retention are removed unless explicitly
-  retained.
-- Privacy scan finds no raw local paths, secret-like values, raw transcript
-  excerpts, or unredacted intermediate text in persistent reports.
+- Generated files are in the declared `inventory/`, `analysis/`, `evidence/`, or
+  `runtime/` directory for their branch. No generated intermediate files remain loose
+  in the package root or branch root.
 - If agent behavior is enabled, model signal limits are stated.
 - The final response links the report files and states this verification evidence.
 
 ## User Habits Evidence Table
 
-`user-habits/evidence-table.csv` columns:
+`user-habits/evidence/evidence-table.csv` columns:
 
 `claim_id`, `claim`, `category`, `preference_source_type`, `preference_scope_type`,
 `drift_status`, `memory_status`, `strength`, `evidence_types`, `agent_scope`,
@@ -228,7 +220,7 @@ Use `id`, `path_hash`, or segment IDs in `supporting_refs` — not full local pa
 
 ## Agent Behavior Evidence Table
 
-`agent-behavior/evidence-table.csv` columns:
+`agent-behavior/evidence/evidence-table.csv` columns:
 
 `finding_id`, `actual_model_bucket`, `displayed_model_signal`, `agent_tool`,
 `behavior_dimension`, `observed_pattern`, `frequency_or_rate`, `strength`,
@@ -239,7 +231,7 @@ Use this separate schema, not the user preference schema.
 
 ## Data Categories
 
-`user-habits/data-categories.json`:
+`user-habits/evidence/data-categories.json`:
 ```json
 {
   "analysis_scope": {},
@@ -252,7 +244,7 @@ Use this separate schema, not the user preference schema.
 }
 ```
 
-`agent-behavior/data-categories.json`:
+`agent-behavior/evidence/data-categories.json`:
 ```json
 {
   "model_grouping": {},

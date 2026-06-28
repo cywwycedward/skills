@@ -66,4 +66,5 @@ Do not perform broad full-disk searches. If a default location is missing, repor
 - Prefer aggregate metrics over raw quoting
 - Do not quote raw transcript content in the final report by default
 - Report sensitive findings by category and count, not by raw value
-- Save only the privacy-safe report package under `.output/`
+- Save report packages under `.output/` using the artifact layout in
+  `report-schemas.md`

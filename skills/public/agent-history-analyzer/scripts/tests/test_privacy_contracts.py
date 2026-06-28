@@ -33,7 +33,7 @@ def test_default_persistent_inventory_summary_is_privacy_safe(tmp_path: Path) ->
     assert "content_sha256" not in summary_text
 
 
-def test_report_retention_contract_names_private_working_files() -> None:
+def test_report_layout_contract_retains_intermediate_files() -> None:
     skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     schema_text = (SKILL_ROOT / "references" / "report-schemas.md").read_text(
         encoding="utf-8"
@@ -41,24 +41,25 @@ def test_report_retention_contract_names_private_working_files() -> None:
     combined = skill_text + "\n" + schema_text
 
     for token in [
-        "inventory.jsonl",
-        "selected_text.jsonl",
-        "agent-behavior/behavior_events.jsonl",
-        "Privacy Warnings",
-        "full local paths",
+        "inventory/inventory.jsonl",
+        "user-habits/analysis/selected_text.jsonl",
+        "agent-behavior/analysis/behavior_events.jsonl",
+        "inventory/",
+        "analysis/",
+        "evidence/",
+        "runtime/",
         "content_sha256",
         "redacted_text",
-        "re-identification",
-        "transcript reconstruction",
-        "inventory_summary.json",
-        "evidence-table.csv",
-        "data-categories.json",
-        "text_profile_summary.json",
+        "inventory/inventory_summary.json",
+        "user-habits/evidence/evidence-table.csv",
+        "user-habits/evidence/data-categories.json",
+        "user-habits/evidence/text_profile_summary.json",
+        "user-habits/runtime/text_profile_warnings.json",
     ]:
         assert token in combined
 
-    assert "Default working files to remove before final verification" in schema_text
-    assert "If the user explicitly requests retaining" in schema_text
+    assert "Keep intermediate files" in schema_text
+    assert "No generated intermediate files remain loose" in schema_text
 
 
 def test_text_profile_uses_only_redacted_selected_text(tmp_path: Path) -> None:

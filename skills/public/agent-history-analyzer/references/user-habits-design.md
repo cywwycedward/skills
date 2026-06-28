@@ -84,7 +84,7 @@ Evidence row:
 `Data support` should summarize counts, evidence types, memory refs, agent coverage,
 project coverage, and time coverage when available. `What this means` translates the
 finding into concrete behavior. `Not applicable when` prevents overbroad rules.
-`Evidence row` must map to `user-habits/evidence-table.csv`.
+`Evidence row` must map to `user-habits/evidence/evidence-table.csv`.
 
 ### Collaboration Decision Matrix
 
@@ -136,7 +136,7 @@ Mandatory sampling slots, when available in the inventory:
 - Requested project buckets with candidates.
 
 If a mandatory slot is not sampled, record the waiver and reason in
-`sampling_plan.json`.
+`inventory/sampling_plan.json`.
 
 In addition to covering time, project, agent tool, and session size, conditionally
 oversample high-value preference events:
@@ -188,7 +188,7 @@ but must not modify memory files automatically.
 ## Negative Preferences
 
 Analyze explicit "do not" preferences as first-class findings. Represent them in
-`user-habits/data-categories.json` and discuss them under the relevant report
+`user-habits/evidence/data-categories.json` and discuss them under the relevant report
 sections.
 
 Each negative preference category should include `forbidden_action`, `trigger`,

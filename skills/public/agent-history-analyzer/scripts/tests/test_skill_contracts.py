@@ -26,17 +26,26 @@ def test_skill_discloses_required_analysis_design_references() -> None:
     assert "Cross-Model Comparison Rule" in agent_behavior
 
 
-def test_workflow_defines_sampling_cleanup_and_verification_gates() -> None:
+def test_source_locations_points_to_artifact_layout() -> None:
+    source_locations = (
+        SKILL_ROOT / "references" / "source-locations.md"
+    ).read_text(encoding="utf-8")
+
+    assert "artifact layout in" in source_locations
+    assert "Save only the privacy-safe report package" not in source_locations
+
+
+def test_workflow_defines_sampling_layout_and_verification_gates() -> None:
     skill_text = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     lower_skill = skill_text.lower()
 
     assert "Initial report language" in skill_text
     assert "sampling_plan.json" in skill_text
     assert "`sample_reason`" in skill_text
-    assert "Finalize Privacy Cleanup" in skill_text
+    assert "Finalize Artifact Layout" in skill_text
     assert "inventory.jsonl" in skill_text
     assert "selected_text.jsonl" in skill_text
-    assert "agent-behavior/behavior_events.jsonl" in skill_text
+    assert "agent-behavior/analysis/behavior_events.jsonl" in skill_text
     assert "### 7. Verify Report Package" in skill_text
     assert "Completion criterion:" in skill_text
 
@@ -45,22 +54,21 @@ def test_workflow_defines_sampling_cleanup_and_verification_gates() -> None:
         "json files parse",
         "csv evidence tables have",
         "warnings.md contains all required sections",
-        "raw working files were removed",
-        "privacy scan passes",
+        "generated intermediate files are in the declared",
         "model signal limits are stated",
         "verification evidence",
     ]:
         assert gate in lower_skill
 
 
-def test_report_schema_defines_language_sampling_retention_and_verification() -> None:
+def test_report_schema_defines_language_sampling_layout_and_verification() -> None:
     schema = (SKILL_ROOT / "references" / "report-schemas.md").read_text(
         encoding="utf-8"
     )
 
     for heading in [
         "## Report Language And Translation",
-        "## Artifact Retention",
+        "## Directory Structure",
         "## Sampling Plan Schema",
         "## Report Package Verification",
     ]:
@@ -70,7 +78,17 @@ def test_report_schema_defines_language_sampling_retention_and_verification() ->
         "report-{lang}.md",
         "warnings-{lang}.md",
         "Derived language outputs translate existing report content only",
-        "sampling_plan.json",
+        "Canonical artifact paths",
+        "| Path | Role | Required when |",
+        "inventory/sampling_plan.json",
+        "inventory/inventory.jsonl",
+        "user-habits/analysis/selected_text.jsonl",
+        "agent-behavior/analysis/behavior_events.jsonl",
+        "user-habits/evidence/evidence-table.csv",
+        "agent-behavior/evidence/evidence-table.csv",
+        "analysis/",
+        "evidence/",
+        "runtime/",
         "sample_reason",
         "recent",
         "oldest",
@@ -81,6 +99,7 @@ def test_report_schema_defines_language_sampling_retention_and_verification() ->
         "high_value_preference_event",
         "full-corpus reading",
         "completion_vs_verification",
+        "No generated intermediate files remain loose",
     ]:
         assert token in schema
 
@@ -108,6 +127,7 @@ def test_user_and_agent_reports_have_readability_contracts() -> None:
         assert token in user_habits
 
     for token in [
+        "Bucket evidence by confirmed actual/effective model signals",
         "Sample Bias Notes",
         "Tool Trajectory",
         "observed_verification",
